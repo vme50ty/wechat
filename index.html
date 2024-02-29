@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        
+        .container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .container h2 {
+            margin-top: 0;
+            margin-bottom: 20px;
+        }
+
+        .container form {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .container form input[type="text"],
+        .container form input[type="password"],
+        .container form input[type="submit"] {
+            width: 100%;
+            padding: 10px;
+            margin-top: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+
+        .container form input[type="submit"] {
+            background-color: #007bff;
+            color: #fff;
+            cursor: pointer;
+        }
+
+        .container form input[type="submit"]:hover {
+            background-color: #0056b3;
+        }
+
+        .container .switch-form {
+            margin-top: 10px;
+        }
+
+        .container .switch-form a {
+            color: #007bff;
+            text-decoration: none;
+        }
+        .error-message {
+            color: red;
+            margin-top: 10px;
+        }
+        .error-register {
+            color: red;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container" id="login-container">
+        <h2>Login</h2>
+        <form id="login-form" action="">
+            <input type="text" name="Name" placeholder="Username" required>
+            <input type="password" name="Password" placeholder="Password" required>
+            <input type="submit" value="Login">
+        </form>
+        <div id="error-message" class="error-message" style="display: none;"></div>
+        <div class="switch-form">
+            <p>Don't have an account? <a href="#" id="register-link">Register</a></p>
+            <p>Forgot your password? <a href="#" id="forgot-password-link">Reset Password</a></p>
+        </div>
+    </div>
+
+    <div class="container" id="register-container" style="display: none;">
+        <h2>Register</h2>
+        <form id="register-form" action="">
+            <input type="text" name="Name" placeholder="Username" id="Name" required>
+            <input type="password" name="Password" placeholder="Password" id="Password" required>
+            <input type="text" name="Phone" placeholder="Phone"  id="Phone" required>
+            <input type="text" name="Email" placeholder="Email" id="Email" required>
+            <input type="submit" value="Register">
+        </form>
+        <div id="error-register" class="error-register" style="display: none;"></div>
+        <div class="switch-form">
+            <p>Already have an account? <a href="#" id="login-link">Login</a></p>
+        </div>
+    </div>
+
+    <div class="container" id="forgot-password-container" style="display: none;">
+        <h2>Forgot Password</h2>
+        <form id="forgot-password-form" action="">
+            <input type="text" name="username" placeholder="Username" required>
+            <input type="text" name="phone" placeholder="Phone Number" required>
+            <input type="submit" value="Reset Password">
+        </form>
+        <div class="switch-form">
+            <p>Remember your password? <a href="#" id="back-to-login-link">Back to Login</a></p>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('register-link').addEventListener('click', function() {
+            showContainer('register-container');
+        });
+
+        document.getElementById('login-link').addEventListener('click', function() {
+            showContainer('login-container');
+        });
+
+        document.getElementById('forgot-password-link').addEventListener('click', function() {
+            showContainer('forgot-password-container');
+        });
+
+        document.getElementById('back-to-login-link').addEventListener('click', function() {
+            showContainer('login-container');
+        });
+
+        function showContainer(containerId) {
+            document.querySelectorAll('.container').forEach(function(container) {
+                container.style.display = 'none';
+            });
+            document.getElementById(containerId).style.display = 'block';
+        }
+        document.getElementById('register-form').addEventListener('submit', function(event) {
+            event.preventDefault(); // 阻止表单的默认提交行为
+        
+            // 提交表单数据到指定的URL
+            var formData = {
+                Name: document.getElementById('Name').value,
+                Password: document.getElementById('Password').value,
+                Phone: document.getElementById('Phone').value,
+                Email: document.getElementById('Email').value
+            };
+        
+            // 发送 JSON 数据到后端
+            fetch('http://172.25.164.190:8081/user/register', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(formData)
+            })
+            .then(response => {
+                if (response.ok) { // 如果响应的状态码是 200 OK
+                    var errorMessage = document.getElementById('error-register');
+                    errorMessage.textContent = '注册成功';
+                    errorMessage.style.display = 'block';
+                    console.log('注册成功'); // 输出注册成功的消息
+                } else {
+                    var errorMessage = document.getElementById('error-register');
+                    switch (response.status) {
+                        case 402:
+                            errorMessage.textContent = '请输入有效的手机号或邮箱';
+                            break;
+                        case 404:
+                            errorMessage.textContent = '手机号或邮箱已注册';
+                            break;
+                        case 403:
+                            errorMessage.textContent = '用户名已注册';
+                        default:
+                            errorMessage.textContent = '注册失败'; // 默认情况下显示通用的注册失败消息
+                    }
+                    errorMessage.style.display = 'block';
+                    console.error('注册失败:', response.statusText); // 输出注册失败的消息和错误信息
+                }
+            })
+            .catch(error => {
+                console.error('注册失败:', error); // 输出注册失败的消息和错误信息
+            });});
+        document.getElementById('login-form').addEventListener('submit', function(event) {
+            event.preventDefault(); // 阻止表单的默认提交行为
+            console.log('NIHAO');
+            // 提交表单数据到指定的URL
+            var form = document.getElementById('login-form');
+            var formData = new FormData(form);
+            fetch('http://172.25.164.190:8081/user/login', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => {
+                if (response.ok) { // 如果响应的状态码是 200 OK
+                    console.log('登录成功'); // 输出登录成功的消息
+                } else {
+                    var errorMessage = document.getElementById('error-message');
+                    errorMessage.textContent = '登录失败，请检查用户名和密码';
+                    errorMessage.style.display = 'block';
+                    console.error('登录失败a:', response.statusText); // 输出登录失败的消息和错误信息
+                }
+            })
+            .catch(error => {
+                console.error('登录失败:', error); // 输出登录失败的消息和错误信息
+                var errorMessage = document.getElementById('error-message');
+                errorMessage.textContent = '登录失败，请检查用户名和密码';
+                errorMessage.style.display = 'block';
+            });
+        });
+    </script>
+</body>
+</html>

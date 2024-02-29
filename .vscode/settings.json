@@ -1,0 +1,10 @@
+{
+    "liveServer.settings.port": 5501,
+    "breadcrumbs.enabled": false,
+    "breadcrumbs.filePath": "off",
+    "breadcrumbs.showArrays": false,
+    "breadcrumbs.icons": false,
+    "breadcrumbs.showClasses": false,
+    "breadcrumbs.showConstants": false,
+    "breadcrumbs.showBooleans": false
+}
